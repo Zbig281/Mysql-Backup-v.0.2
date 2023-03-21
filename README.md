@@ -1,10 +1,14 @@
 # Mysql-Backup-v.0.2
 
-This Is a basic program that retrieves current data from Mysql for the server Life is fudal your own and more. Currently out of the box.
+This is a basic program that retrieves current data from MySQL for the server Life is Feudal: Your Own and more. Currently out of the box.
 
-## Instructions
+## Instructions  
+To use this program, follow these steps:
 
-To use this program, edit the file named config.txt, which is located in config/config.txt with the following parameters:
+1. Download or clone the project.
+2. Add the `mysqldump.exe` file to the project directory.
+3. Create a `config` folder inside the project directory and add the `config.txt` file to it.
+4. Edit the `config.txt` file with the following parameters:
 
 - `server`: server IP or `127.0.0.1`
 - `port`: port number (`3306` is the default)
