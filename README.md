@@ -4,7 +4,7 @@ This Is a basic program that retrieves current data from Mysql for the server Li
 
 ## Instructions
 
-To use this program, create a file named `config.txt` with the following parameters:
+To use this program, edit the file named config.txt, which is located in config/config.txt with the following parameters:
 
 - `server`: server IP or `127.0.0.1`
 - `port`: port number (`3306` is the default)
