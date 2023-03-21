@@ -1,7 +1,7 @@
-﻿server=217.226.60.94
+﻿server=217.226.60.100
 port=3306
 user=root
-
-database=lif_3
+password=
+database=lif_1
 startHour=3
 backupInterval=4
