@@ -1,6 +1,7 @@
 # Mysql-Backup-v.0.2
 This Is a basic program that retrieves current data from Mysql for the server Life is fudal your own and more. 
 Currently out of the box 
+
 "2. Schedule automatic backups - Currently does not work 100%.
 
 Insruction!
