@@ -31,43 +31,39 @@ namespace DBBackupHelpers
                     using (MySqlCommand cmd = new MySqlCommand())
                     {
                         cmd.Connection = conn;
-                        string argument = $"-h {ip} -u {username} -p{password} {dbName}";
-                        ProcessStartInfo startInfo = new ProcessStartInfo
+                        cmd.CommandText = "SELECT * FROM tabela1";
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
                         {
-                            FileName = "mysqldump",
-                            Arguments = argument,
-                            RedirectStandardOutput = true,
-                            UseShellExecute = false
-                        };
-                        Process process = new Process { StartInfo = startInfo };
-                        process.Start();
-                        string backupDirectory = "backup_lif_server";
-                        Directory.CreateDirectory(backupDirectory);
-                        string backupPath = Path.Combine(backupDirectory, $"backup_{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}.sql");
-
-                        using (StreamWriter sw = new StreamWriter(backupPath))
-                        {
-                            sw.Write(process.StandardOutput.ReadToEnd());
+                            // Zapisz dane do pliku .sql
+                            using (StreamWriter writer = new StreamWriter("backup_lif_server/tabela1_backup.sql"))
+                            {
+                                while (reader.Read())
+                                {
+                                    string values = "";
+                                    for (int i = 0; i < reader.FieldCount; i++)
+                                    {
+                                        if (i > 0) values += ",";
+                                        values += "'" + reader.GetValue(i).ToString().Replace("'", "''") + "'";
+                                    }
+                                    writer.WriteLine("INSERT INTO tabela1 VALUES(" + values + ");");
+                                }
+                            }
                         }
                     }
                 }
 
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Backup Done!");
+                Console.WriteLine("Backup completed successfully.");
                 Console.ResetColor();
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"An error occurred. Check that your MySQL login credentials are correct: {ex.Message}");
+                Console.WriteLine($"An error occurred. {ex.Message}");
                 Console.ResetColor();
             }
-            finally
-            {
-                Console.WriteLine("FINISH!.");
-                Environment.Exit(2);
-            }
         }
+
 
     }
 }

@@ -19,7 +19,7 @@ namespace DBBackup
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.WriteLine("Do you want to:");
                 Console.WriteLine("1. Perform backup now");
-                Console.WriteLine("2. Schedule automatic backups");
+                Console.WriteLine("2. Schedule automatic backups - Currently not working 100%");
                 Console.WriteLine("3. Exit");
                 Console.ResetColor();
 

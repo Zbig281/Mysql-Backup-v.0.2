@@ -46,7 +46,7 @@ namespace BackupScheduler
                     DateTime nextBackupTime = new DateTime(now.Year, now.Month, now.Day, startHour, startMinute, 0);
                     while (nextBackupTime < now)
                     {
-                        nextBackupTime = nextBackupTime.AddDays(1);
+                        nextBackupTime = nextBackupTime.AddHours(backupInterval);
                     }
 
                     TimeSpan waitTime = nextBackupTime - now;
@@ -70,15 +70,38 @@ namespace BackupScheduler
                         Console.WriteLine($"Waiting for {waitTime.Hours:00}:{waitTime.Minutes:00}... Press Escape to cancel.");
                     }
 
+                    // Odliczanie czasu do kolejnego backupu
+                    while (waitTime.TotalMinutes >= 1)
+                    {
+                        if (Console.KeyAvailable)
+                        {
+                            ConsoleKey key = Console.ReadKey(true).Key;
+                            if (key == ConsoleKey.Escape)
+                            {
+                                Console.WriteLine("Backup aborted.");
+                                return;
+                            }
+                        }
+
+                        Thread.Sleep(TimeSpan.FromSeconds(5));
+                        waitTime = nextBackupTime - DateTime.Now;
+                        Console.WriteLine($"Waiting for {waitTime.Hours:00}:{waitTime.Minutes:00}... Press Escape to cancel.");
+                    }
+
                     // Wykonaj backup
                     PerformBackup();
+
+                    // Zapisz czas wykonania backupu
+                    File.WriteAllText(lastBackupFile, DateTime.Now.ToString());
+
 
                     // Zapisz log
                     string logFilePath = Path.Combine(backupDirectory, "backup_log.txt");
                     File.AppendAllText(logFilePath, $"Backup performed at {DateTime.Now}\n");
 
                     // Poczekaj na kolejny backup
-                    Thread.Sleep(backupInterval * 60 * 1000);
+                    Thread.Sleep(backupInterval * 60 * 60 * 1000);
+
                 }
             }
             catch (Exception ex)
@@ -113,43 +136,39 @@ namespace BackupScheduler
                     using (MySqlCommand cmd = new MySqlCommand())
                     {
                         cmd.Connection = conn;
-                        string argument = $"-h {ip} -u {username} -p{password} {dbName}";
-                        ProcessStartInfo startInfo = new ProcessStartInfo
+                        cmd.CommandText = "SELECT * FROM tabela1";
+                        using (MySqlDataReader reader = cmd.ExecuteReader())
                         {
-                            FileName = "mysqldump",
-                            Arguments = argument,
-                            RedirectStandardOutput = true,
-                            UseShellExecute = false
-                        };
-                        Process process = new Process { StartInfo = startInfo };
-                        process.Start();
-                        string backupDirectory = "backup_lif_server";
-                        Directory.CreateDirectory(backupDirectory);
-                        string backupPath = Path.Combine(backupDirectory, $"backup_{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}.sql");
-
-                        using (StreamWriter sw = new StreamWriter(backupPath))
-                        {
-                            sw.Write(process.StandardOutput.ReadToEnd());
+                            // Zapisz dane do pliku .sql
+                            using (StreamWriter writer = new StreamWriter("backup_lif_server/tabela1_backup.sql"))
+                            {
+                                while (reader.Read())
+                                {
+                                    string values = "";
+                                    for (int i = 0; i < reader.FieldCount; i++)
+                                    {
+                                        if (i > 0) values += ",";
+                                        values += "'" + reader.GetValue(i).ToString().Replace("'", "''") + "'";
+                                    }
+                                    writer.WriteLine("INSERT INTO tabela1 VALUES(" + values + ");");
+                                }
+                            }
                         }
                     }
                 }
 
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Backup Done!");
+                Console.WriteLine("Backup completed successfully.");
                 Console.ResetColor();
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"An error occurred. Check that your MySQL login credentials are correct: {ex.Message}");
+                Console.WriteLine($"An error occurred. {ex.Message}");
                 Console.ResetColor();
             }
-            finally
-            {
-                Console.WriteLine("FINISH!.");
-                Scheduler.Run();
-            }
         }
+
     }
 }
 
