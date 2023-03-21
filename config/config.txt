@@ -1,0 +1,7 @@
+﻿server=217.226.60.94
+port=3306
+user=root
+
+database=lif_3
+startHour=3
+backupInterval=4
